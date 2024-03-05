@@ -15,6 +15,8 @@ M.config = function()
     local luasnip = require('luasnip')
 
     cmp.setup({
+        enabled = true,
+        view = {},
         snippet = {
             expand = function(args)
                 luasnip.lsp_expand(args.body)
