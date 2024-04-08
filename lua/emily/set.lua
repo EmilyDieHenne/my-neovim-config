@@ -2,7 +2,6 @@ vim.opt.nu = true
 vim.opt.relativenumber = true
 vim.g.autoformat = true
 vim.opt.sidescrolloff = 2
-
 vim.opt.scrolloff = 3
 
 vim.tabstop = 4
@@ -16,3 +15,10 @@ vim.o.completeopt = 'menuone,noselect'
 vim.opt.smartindent = true
 
 vim.opt.showmode = false
+vim.wo.wrap = true
+vim.wo.linebreak = true
+
+
+vim.diagnostic.config({
+    virtual_text = false,
+})

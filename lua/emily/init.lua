@@ -25,7 +25,8 @@ capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp'
 
 require('mason').setup()
 require('mason-lspconfig').setup {
-    ensure_installed = { "lua_ls", "omnisharp", "tsserver" }
+    ensure_installed = { "lua_ls", "volar", "eslint", "omnisharp", "tsserver" },
+    automatic_installation = true
 }
 
 local lspconfig = require('lspconfig')
@@ -39,12 +40,21 @@ lspconfig.lua_ls.setup {
         }
     },
 }
-lspconfig.eslint.setup({
-    on_attach = function(client, bufnr)
-        vim.api.nvim_create_autocmd("BufWritePre", {
-            buffer = bufnr,
-            command = "EslintFixAll",
-        })
-    end,
-})
+
+lspconfig.rust_analyzer.setup {}
+
+lspconfig.volar.setup {
+    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' }
+}
+
+require 'lspconfig'.pyright.setup {}
+
+--lspconfig.eslint.setup({
+--   on_attach = function(client, bufnr)
+--      vim.api.nvim_create_autocmd("BufWritePre", {
+--         buffer = bufnr,
+--        command = "EslintFixAll",
+--   })
+--end,
+--})
 lspconfig.vimls.setup {}
