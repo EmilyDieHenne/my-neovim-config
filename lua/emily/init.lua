@@ -25,11 +25,11 @@ capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp'
 
 require('mason').setup()
 require('mason-lspconfig').setup {
-    ensure_installed = { "lua_ls", "volar", "eslint", "omnisharp", "tsserver" },
-    automatic_installation = true
+    ensure_installed = { "lua_ls", "rust_analyzer", "omnisharp", "tsserver" }
 }
 
 local lspconfig = require('lspconfig')
+
 
 lspconfig.lua_ls.setup {
     format = {
@@ -49,12 +49,14 @@ lspconfig.volar.setup {
 
 require 'lspconfig'.pyright.setup {}
 
---lspconfig.eslint.setup({
---   on_attach = function(client, bufnr)
---      vim.api.nvim_create_autocmd("BufWritePre", {
---         buffer = bufnr,
---        command = "EslintFixAll",
---   })
---end,
---})
+lspconfig.rust_analyzer.setup {}
+
+lspconfig.eslint.setup({
+    on_attach = function(client, bufnr)
+        vim.api.nvim_create_autocmd("BufWritePre", {
+            buffer = bufnr,
+            command = "EslintFixAll",
+        })
+    end,
+})
 lspconfig.vimls.setup {}
