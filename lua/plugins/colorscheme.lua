@@ -1,11 +1,9 @@
 return {
-	"AlexvZyl/nordic.nvim",
-	lazy = false,
-	priority = 1000,
-	config = function()
-		require("nordic").setup({
-			reduced_blue = false,
-		})
-		require("nordic").load()
-	end,
+    "AlexvZyl/nordic.nvim",
+    lazy = false,
+    priority = 1000,
+    opts = { reduced_blue = false },
+    config = function()
+        vim.cmd([[colorscheme nordic]])
+    end,
 }
