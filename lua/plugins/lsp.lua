@@ -1,4 +1,24 @@
+local function get_pkg_path(pkg, path, opts)
+    pcall(require, "mason") -- make sure Mason is loaded. Will fail when generating docs
+    local root = vim.env.MASON or (vim.fn.stdpath("data") .. "/mason")
+    opts = opts or {}
+    opts.warn = opts.warn == nil and true or opts.warn
+    path = path or ""
+    local ret = root .. "/packages/" .. pkg .. "/" .. path
+    print("hi")
+    if opts.warn and not vim.loop.fs_stat(ret) and not require("lazy.core.config").headless() then
+        M.warn(
+            ("Mason package path not found for **%s**:\n- `%s`\nYou may need to force update the package."):format(
+                pkg,
+                path
+            )
+        )
+    end
+    return ret
+end
+
 return {
+
     "neovim/nvim-lspconfig",
     dependencies = {
         -- Automatically install LSPs and related tools to stdpath for Neovim
@@ -13,6 +33,13 @@ return {
         -- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
         -- used for completion, annotations and signatures of Neovim apis
         { "folke/neodev.nvim", opts = {} },
+    },
+    opts = {
+        setup = {
+            clangd = function(_, opts)
+                opts.capabilities.offsetEncoding = { "utf-16" }
+            end,
+        },
     },
     config = function()
         vim.api.nvim_create_autocmd("LspAttach", {
@@ -114,31 +141,10 @@ return {
         --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
         --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
         local capabilities = vim.lsp.protocol.make_client_capabilities()
+
         capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
-        -- Enable the following language servers
-        --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
-        --
-        --  Add any additional override configuration in the following tables. Available keys are:
-        --  - cmd (table): Override the default command used to start the server
-        --  - filetypes (table): Override the default list of associated filetypes for the server
-        --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
-        --  - settings (table): Override the default settings passed when initializing the server.
-        --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
         local servers = {
-            -- clangd = {},
-            -- gopls = {},
-            -- pyright = {},
-            -- rust_analyzer = {},
-            -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-            --
-            -- Some languages (like typescript) have entire language plugins that can be useful:
-            --    https://github.com/pmizio/typescript-tools.nvim
-            --
-            -- But for many setups, the LSP (`tsserver`) will work just fine
-            -- tsserver = {},
-            --
-
             lua_ls = {
                 -- cmd = {...},
                 -- filetypes = { ...},
@@ -148,25 +154,56 @@ return {
                         completion = {
                             callSnippet = "Replace",
                         },
-                        -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-                        -- diagnostics = { disable = { 'missing-fields' } },
                     },
                 },
             },
+            volar = {
+                init_options = {
+                    vue = {
+                        hybridMode = true,
+                    },
+                },
+            },
+            vtsls = {
+                filetypes = {
+                    "javascript",
+                    "javascriptreact",
+                    "javascript.jsx",
+                    "typescript",
+                    "typescriptreact",
+                    "typescript.tsx",
+                    "vue",
+                },
+                settings = {
+                    vtsls = {
+                        tsserver = {
+                            globalPlugins = {
+                                {
+                                    name = "@vue/typescript-plugin",
+                                    location = get_pkg_path(
+                                        "vue-language-server",
+                                        "/node_modules/@vue/language-server"
+                                    ),
+                                    languages = { "vue" },
+                                    configNamespace = "typescript",
+                                    enableForWorkspaceTypeScriptVersions = true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            rust_analyzer = {},
         }
-
-        -- Ensure the servers and tools above are installed
-        --  To check the current status of installed tools and/or manually install
-        --  other tools, you can run
-        --    :Mason
-        --
-        --  You can press `g?` for help in this menu.
         require("mason").setup()
 
         -- You can add other tools here that you want Mason to install
         -- for you, so that they are available from within Neovim.
-        local ensure_installed = vim.tbl_keys(servers or {})
+        local ensure_installed = vim.tbl_keys(servers or { "vtsls" })
+
         vim.list_extend(ensure_installed, {
+            "volar",
+            "vtsls",
             "stylua", -- Used to format Lua code
         })
         require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
