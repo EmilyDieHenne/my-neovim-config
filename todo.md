@@ -2,12 +2,9 @@
 
 ## Programming Languages / Tech-stacks
 - Vue
-    - TS
-    - Vanilla CSS
-    - Tailwind
-
-- Rust
+    - Works, but very buggy. LSP refactor needed
 - C#
+    - seems to work, more testing needed 
 
 ## Autoformat
 - Following editorconfig
@@ -16,7 +13,4 @@
 - Treesitter
 - better buffer workflow
 - better telescope keybinds
-- LSP shortcuts 
-    - Code Action
-    - go to Definition/Implementation
 - better Lualine (not important, would look cool) 

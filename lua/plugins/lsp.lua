@@ -1,3 +1,4 @@
+-- stolen from lazyvim, im not sure why this works
 local function get_pkg_path(pkg, path, opts)
     pcall(require, "mason") -- make sure Mason is loaded. Will fail when generating docs
     local root = vim.env.MASON or (vim.fn.stdpath("data") .. "/mason")
@@ -145,10 +146,8 @@ return {
         capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
         local servers = {
+            prettier = {},
             lua_ls = {
-                -- cmd = {...},
-                -- filetypes = { ...},
-                -- capabilities = {},
                 settings = {
                     Lua = {
                         completion = {
@@ -170,12 +169,14 @@ return {
                     "javascriptreact",
                     "javascript.jsx",
                     "typescript",
+                    "javascript.cjs",
                     "typescriptreact",
                     "typescript.tsx",
                     "vue",
                 },
                 settings = {
                     vtsls = {
+                        complete_function_calls = true,
                         tsserver = {
                             globalPlugins = {
                                 {
@@ -191,9 +192,28 @@ return {
                             },
                         },
                     },
+                    typescript = {
+                        updateImportsOnFileMove = { enabled = "always" },
+                        suggest = {
+                            completeFunctionCalls = true,
+                        },
+                        inlayHints = {
+                            enumMemberValues = { enabled = true },
+                            functionLikeReturnTypes = { enabled = true },
+                            parameterNames = { enabled = "literals" },
+                            parameterTypes = { enabled = true },
+                            propertyDeclarationTypes = { enabled = true },
+                            variableTypes = { enabled = false },
+                        },
+                    },
                 },
             },
-            rust_analyzer = {},
+            rust_analyzer = {
+                checkOnSave = {
+                    command = "clippy",
+                },
+            },
+            omnisharp = {},
         }
         require("mason").setup()
 

@@ -3,7 +3,7 @@ return {
     branch = "v3.x",
     dependencies = {
         "nvim-lua/plenary.nvim",
-        "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
+        "nvim-tree/nvim-web-devicons",
         "MunifTanjim/nui.nvim",
     },
     opts = {
@@ -14,7 +14,9 @@ return {
             hijack_netrw_behavior = "open_default",
         },
     },
+
     keys = {
         { "<leader>e", "<Cmd>Neotree reveal toggle current<CR>", desc = "reveal NeoTree" },
+        { "<leader>b", "<Cmd>Neotree buffers toggle current<CR>", desc = "reveal buffers" },
     },
 }
