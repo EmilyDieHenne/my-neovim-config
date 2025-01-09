@@ -6,6 +6,7 @@ return {
         "nvim-tree/nvim-web-devicons",
         "MunifTanjim/nui.nvim",
     },
+    lazy = false,
     opts = {
         buffers = {
             follow_current_file = {
@@ -16,7 +17,30 @@ return {
     },
 
     keys = {
-        { "<leader>e", "<Cmd>Neotree reveal toggle current<CR>", desc = "reveal NeoTree" },
-        { "<leader>b", "<Cmd>Neotree buffers toggle current<CR>", desc = "reveal buffers" },
+        {
+            "<leader>e",
+            function()
+                require("neo-tree.command").execute({
+                    toggle = true,
+                    source = "filesystem",
+                    position = "current",
+                    reveal = true,
+                })
+            end,
+            --"<Cmd>Neotree reveal toggle current<CR>",
+            desc = "reveal NeoTree",
+        },
+        {
+            "<leader>b",
+            function()
+                require("neo-tree.command").execute({
+                    toggle = true,
+                    source = "buffers",
+                    position = "current",
+                    reveal = true,
+                })
+            end,
+            desc = "reveal buffers",
+        },
     },
 }

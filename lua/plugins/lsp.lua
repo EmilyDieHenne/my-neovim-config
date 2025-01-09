@@ -1,38 +1,10 @@
--- stolen from lazyvim, im not sure why this works
-local function get_pkg_path(pkg, path, opts)
-    pcall(require, "mason") -- make sure Mason is loaded. Will fail when generating docs
-    local root = vim.env.MASON or (vim.fn.stdpath("data") .. "/mason")
-    opts = opts or {}
-    opts.warn = opts.warn == nil and true or opts.warn
-    path = path or ""
-    local ret = root .. "/packages/" .. pkg .. "/" .. path
-    print("hi")
-    if opts.warn and not vim.loop.fs_stat(ret) and not require("lazy.core.config").headless() then
-        M.warn(
-            ("Mason package path not found for **%s**:\n- `%s`\nYou may need to force update the package."):format(
-                pkg,
-                path
-            )
-        )
-    end
-    return ret
-end
-
 return {
-
     "neovim/nvim-lspconfig",
     dependencies = {
-        -- Automatically install LSPs and related tools to stdpath for Neovim
-        { "williamboman/mason.nvim", config = true }, -- NOTE: Must be loaded before dependants
+        { "williamboman/mason.nvim", config = true },
         "williamboman/mason-lspconfig.nvim",
         "WhoIsSethDaniel/mason-tool-installer.nvim",
-
-        -- Useful status updates for LSP.
-        -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
         { "j-hui/fidget.nvim", opts = {} },
-
-        -- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
-        -- used for completion, annotations and signatures of Neovim apis
         { "folke/neodev.nvim", opts = {} },
     },
     opts = {
@@ -146,85 +118,21 @@ return {
         capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
         local servers = {
-            prettier = {},
-            lua_ls = {
-                settings = {
-                    Lua = {
-                        completion = {
-                            callSnippet = "Replace",
-                        },
-                    },
-                },
-            },
-            volar = {
-                init_options = {
-                    vue = {
-                        hybridMode = true,
-                    },
-                },
-            },
-            vtsls = {
-                filetypes = {
-                    "javascript",
-                    "javascriptreact",
-                    "javascript.jsx",
-                    "typescript",
-                    "javascript.cjs",
-                    "typescriptreact",
-                    "typescript.tsx",
-                    "vue",
-                },
-                settings = {
-                    vtsls = {
-                        complete_function_calls = true,
-                        tsserver = {
-                            globalPlugins = {
-                                {
-                                    name = "@vue/typescript-plugin",
-                                    location = get_pkg_path(
-                                        "vue-language-server",
-                                        "/node_modules/@vue/language-server"
-                                    ),
-                                    languages = { "vue" },
-                                    configNamespace = "typescript",
-                                    enableForWorkspaceTypeScriptVersions = true,
-                                },
-                            },
-                        },
-                    },
-                    typescript = {
-                        updateImportsOnFileMove = { enabled = "always" },
-                        suggest = {
-                            completeFunctionCalls = true,
-                        },
-                        inlayHints = {
-                            enumMemberValues = { enabled = true },
-                            functionLikeReturnTypes = { enabled = true },
-                            parameterNames = { enabled = "literals" },
-                            parameterTypes = { enabled = true },
-                            propertyDeclarationTypes = { enabled = true },
-                            variableTypes = { enabled = false },
-                        },
-                    },
-                },
-            },
-            rust_analyzer = {
-                checkOnSave = {
-                    command = "clippy",
-                },
-            },
-            omnisharp = {},
+            lua_ls = require("plugins.lsp.lua"),
+            rust_analyzer = require("plugins.lsp.rust"),
+            volar = require("plugins.lsp.volar"),
+            vtsls = require("plugins.lsp.typescript_vue"),
+            prettier = require("plugins.lsp.prettier"),
+            omnisharp = require("plugins.lsp.omnisharp"),
         }
         require("mason").setup()
 
-        -- You can add other tools here that you want Mason to install
-        -- for you, so that they are available from within Neovim.
         local ensure_installed = vim.tbl_keys(servers or { "vtsls" })
 
         vim.list_extend(ensure_installed, {
             "volar",
             "vtsls",
-            "stylua", -- Used to format Lua code
+            "stylua",
         })
         require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
